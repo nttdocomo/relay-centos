@@ -23,7 +23,6 @@ RUN set -x \
     && ./bootstrap --prefix=/usr/local \
     && make -j$(nproc) \
     && make install \
-    && chmod ugo+x /bin/sentry-cli \
     && rm -rf /cmake-3.* \
     && yum clean all
 
@@ -51,7 +50,8 @@ COPY ./sentry-cli-Linux-x86_64 /bin/sentry-cli
 RUN echo -e "[net]\ngit-fetch-with-cli = true" > $CARGO_HOME/config \
     && git clone --branch 21.5.0 https://github.com/getsentry/relay.git \
     && cd ./relay \
-    && make build-linux-release TARGET=${BUILD_TARGET} RELAY_FEATURES=${RELAY_FEATURES}
+    && make build-linux-release TARGET=${BUILD_TARGET} RELAY_FEATURES=${RELAY_FEATURES} \
+    && chmod ugo+x /bin/sentry-cli
 
 RUN cp ./target/$BUILD_TARGET/release/relay /opt/relay \
     && zip /opt/relay-debug.zip target/$BUILD_TARGET/release/relay.debug

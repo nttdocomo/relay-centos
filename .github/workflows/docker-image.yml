@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# 定义环境变量, 后面会使用
+# 定义 APP_NAME 用于 docker build-args
+# 定义 DOCKERHUB_REPO 标记 docker hub repo 名称
+env:
+  APP_NAME: relay-centos
+  DOCKERHUB_REPO: nttdocomoouyi/relay-centos
+
 jobs:
 
   build:
@@ -16,3 +23,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag relay-centos:$(date +%s)
+      - uses: docker/login-action@v2
+        name: Login to DockerHub
+        with:
+          # GitHub Repo => Settings => Secrets 增加 docker hub 登录密钥信息
+          # DOCKERHUB_USERNAME 是 docker hub 账号名.
+          # DOCKERHUB_TOKEN: docker hub => Account Setting => Security 创建.
+          username: nttdocomoouyi
+          password: dckr_pat_g3hesdgX5-L6B-HzptBwJuH3Vpo
+      - uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ${{ env.DOCKERHUB_REPO }}:latest
