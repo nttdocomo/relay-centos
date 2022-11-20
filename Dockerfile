@@ -48,15 +48,14 @@ COPY ./sentry-cli-Linux-x86_64 /bin/sentry-cli
 
 # Build with the modern compiler toolchain enabled
 RUN echo -e "[net]\ngit-fetch-with-cli = true" > $CARGO_HOME/config \
-    && git clone --branch 21.5.0 https://github.com/getsentry/relay.git \
-    && cd ./relay \
+    && git clone --branch 21.5.0 https://github.com/getsentry/relay.git . \
     && make build-linux-release TARGET=${BUILD_TARGET} RELAY_FEATURES=${RELAY_FEATURES} \
     && chmod ugo+x /bin/sentry-cli
 
-RUN cp /relay/target/$BUILD_TARGET/release/relay /opt/relay \
-    && zip /opt/relay-debug.zip /relay/target/$BUILD_TARGET/release/relay.debug
+RUN cp ./target/$BUILD_TARGET/release/relay /opt/relay \
+    && zip /opt/relay-debug.zip target/$BUILD_TARGET/release/relay.debug
 
 # Collect source bundle
 RUN sentry-cli --version \
-    && sentry-cli difutil bundle-sources /relay/target/$BUILD_TARGET/release/relay.debug \
-    && mv /relay/target/$BUILD_TARGET/release/relay.src.zip /opt/relay.src.zip
+    && sentry-cli difutil bundle-sources ./target/$BUILD_TARGET/release/relay.debug \
+    && mv ./target/$BUILD_TARGET/release/relay.src.zip /opt/relay.src.zip
